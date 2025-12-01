@@ -1,0 +1,34 @@
+name: Termin Checker
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'  # Läuft alle 30 Minuten
+  workflow_dispatch:        # Erlaubt manuelles Starten per Klick zum Testen
+
+jobs:
+  check-appointments:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
+
+      - name: Run Script
+        run: python main.py
+
+      - name: Upload Screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: results/
+          retention-days: 5 # Behält die Bilder für 5 Tage
