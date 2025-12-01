@@ -2,33 +2,33 @@ name: Termin Checker
 
 on:
   schedule:
-    - cron: '*/30 * * * *'  # Läuft alle 30 Minuten
-  workflow_dispatch:        # Erlaubt manuelles Starten per Klick zum Testen
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
 
 jobs:
   check-appointments:
     runs-on: ubuntu-latest
-
+    # HIER IST DER TRICK: Wir nutzen das offizielle Playwright-Image
+    container:
+      image: mcr.microsoft.com/playwright/python:v1.49.1-jammy
+    
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-
+      # Python ist im Image schon da, wir installieren nur noch dein Skript-Zubehör
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          playwright install chromium
+          # "playwright install" ist NICHT mehr nötig, da die Browser im Image sind!
 
       - name: Run Script
         run: python main.py
 
       - name: Upload Screenshots
         uses: actions/upload-artifact@v4
+        if: always() # Lädt Screenshots hoch, auch wenn das Skript einen Fehler wirft
         with:
           name: screenshots
           path: results/
-          retention-days: 5 # Behält die Bilder für 5 Tage
+          retention-days: 5
