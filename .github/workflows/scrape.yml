@@ -8,19 +8,35 @@ on:
 jobs:
   check-appointments:
     runs-on: ubuntu-latest
-    # HIER IST DER TRICK: Wir nutzen das offizielle Playwright-Image
-    container:
-      image: mcr.microsoft.com/playwright/python:v1.56.0-jammy
-    
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
 
-      # Python ist im Image schon da, wir installieren nur noch dein Skript-Zubehör
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip' # Dies cached automatisch die Python-Bibliotheken
+
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          # "playwright install" ist NICHT mehr nötig, da die Browser im Image sind!
+        run: pip install -r requirements.txt
+
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "VERSION=$(python -c 'import playwright; print(playwright.__version__)')" >> $GITHUB_OUTPUT
+
+      # Browser-Cache Logik
+      - name: Cache Playwright Browsers
+        uses: actions/cache@v3
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.VERSION }}
+
+      # Installiere Browser NUR wenn sie nicht im Cache waren
+      - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: playwright install chromium
 
       - name: Run Script
         run: python main.py
