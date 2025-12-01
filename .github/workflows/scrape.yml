@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     # HIER IST DER TRICK: Wir nutzen das offizielle Playwright-Image
     container:
-      image: mcr.microsoft.com/playwright/python:v1.49.1-jammy
+      image: mcr.microsoft.com/playwright/python:v1.56.0-jammy
     
     steps:
       - name: Check out repository
