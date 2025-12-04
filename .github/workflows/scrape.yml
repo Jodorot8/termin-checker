@@ -4,19 +4,19 @@ on:
   schedule:
 # --- BLOCK 1: Morgens bis Mittags ---
     # Mo, Di, Mi, Fr: 01:00 bis 12:00 Uhr (DE) -> 00:00 bis 11:00 (UTC)
-    - cron: '*/15 0-11 * * 1,2,3,5'
+    - cron: '*/5 6-10 * * 1,2,3,4,5'
     
     # Do: 01:00 bis 17:00 Uhr (DE) -> 00:00 bis 16:00 (UTC)
-    - cron: '*/15 0-16 * * 4'
+    # - cron: '*/15 0-16 * * 4'
 
     # --- BLOCK 2: Der späte Abend (23:00 - 00:00) ---
     # Mo-Fr: 23:00 bis 00:00 Uhr (DE) -> 22:00 bis 23:00 (UTC)
-    - cron: '*/15 22 * * 1-5'
+    # - cron: '*/15 22 * * 1-5'
 
     # --- BLOCK 3: Die kritische 00:00 Uhr Stunde ---
     # Mo-Fr: 00:00 bis 01:00 Uhr (DE) -> 23:00 bis 00:00 (UTC VORTAG!)
     # Da dies in UTC am Vorabend passiert, müssen wir So-Do (0-4) auswählen.
-    - cron: '*/15 23 * * 0-4'
+    # - cron: '*/15 23 * * 0-4'
   workflow_dispatch:
 
 jobs:
