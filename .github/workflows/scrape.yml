@@ -7,13 +7,13 @@ on:
     # The following schedule is calculated for German Winter Time (CET).
 
     # 1. Start specifically at 07:57 CET (06:57 UTC)
-    - cron: '57 6 * * 1-5'
+    #- cron: '57 6 * * 1-5'
 
     # 2. Run every 10 minutes from 08:07 CET to 09:57 CET
     #    (07:07 UTC to 08:57 UTC)
     #    Minutes: 07, 17, 27, 37, 47, 57
     #    Hours (UTC): 7 and 8
-    - cron: '7,17,27,37,47,57 7,8 * * 1-5'
+    #- cron: '7,17,27,37,47,57 7,8 * * 1-5'
 
   workflow_dispatch:
 
