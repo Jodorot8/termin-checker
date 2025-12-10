@@ -1,70 +1,60 @@
 name: Termin Checker
 
 on:
+  workflow_dispatch: # Allows manual triggering
   schedule:
-    # GitHub Actions schedules run in UTC time.
-    # Germany is UTC+1 (Winter) and UTC+2 (Summer).
-    # The following schedule is calculated for German Winter Time (CET).
+    # GitHub Actions runs in UTC. 
+    # Germany (Winter) is UTC+1. Germany (Summer) is UTC+2.
+    
+    # Run at 07:57 CET (06:57 UTC) Mon-Fri
+    # - cron: '57 6 * * 1-5'
 
-    # 1. Start specifically at 07:57 CET (06:57 UTC)
-    #- cron: '57 6 * * 1-5'
-
-    # 2. Run every 10 minutes from 08:07 CET to 09:57 CET
-    #    (07:07 UTC to 08:57 UTC)
-    #    Minutes: 07, 17, 27, 37, 47, 57
-    #    Hours (UTC): 7 and 8
-    #- cron: '7,17,27,37,47,57 7,8 * * 1-5'
-
-  workflow_dispatch:
+    # Run every 10 minutes from 08:07 to 09:57 CET Mon-Fri
+    # (07:07 to 08:57 UTC)
+    # - cron: '7,17,27,37,47,57 7,8 * * 1-5'
 
 jobs:
   check-appointments:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.9'
           cache: 'pip'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          # Ensure playwright CLI is available even if not declared in requirements.txt
-          python -m pip install playwright
+      - name: Install Python Dependencies
+        run: pip install -r requirements.txt
 
-      - name: Get Playwright version
+      - name: Get Playwright Version
         id: playwright-version
         run: echo "VERSION=$(python -c 'import playwright; print(playwright.__version__)')" >> $GITHUB_OUTPUT
 
-      # Browser Caching Logic
+      # Browser Caching
+      # NOTE: 'v2' added to key to bust old cache and force fresh install
       - name: Cache Playwright Browsers
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.VERSION }}
-
-      - name: Debug: cache hit
-        run: echo "Cache hit = ${{ steps.playwright-cache.outputs.cache-hit }}"
+          key: ${{ runner.os }}-playwright-v2-${{ steps.playwright-version.outputs.VERSION }}
 
       # Install browsers ONLY if cache miss
+      # FIXED: Added 'chromium-headless-shell' and '--with-deps'
       - name: Install Playwright Browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: |
-          # Install Playwright browsers and OS dependencies (safer for fresh runners)
-          python -m playwright install --with-deps
+        run: playwright install chromium chromium-headless-shell --with-deps
 
-      - name: Run Script
+      - name: Run Termin Checker
         run: python main.py
 
       - name: Upload Screenshots
         uses: actions/upload-artifact@v4
-        if: always() # Uploads screenshots even if the script fails
+        if: always() # Runs even if the script fails
         with:
           name: screenshots
           path: results/
