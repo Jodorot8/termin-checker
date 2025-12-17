@@ -11,8 +11,8 @@ CHECKBOX_LABEL_SELECTOR = "label[for='check_9_26']"
 NO_APPOINTMENTS_TEXT = "Keine verfügbaren Termine!" # Text on website remains German
 
 # New Parameters for Loop
-NUM_CHECKS = 5          # How many times to check in one execution
-WAIT_TIME_SECONDS = 60  # How long to wait between checks (in seconds)
+NUM_CHECKS = 20          # How many times to check in one execution
+WAIT_TIME_SECONDS = 15  # How long to wait between checks (in seconds)
 # =================================================
 
 def write_summary(text):
